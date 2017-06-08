@@ -97,7 +97,6 @@ var app = {
     // Clear existing messages`
     app.clearMessages();
     app.stopSpinner();
-console.log(messages);
     if (Array.isArray(messages)) {
       // Add all fetched messages that are in our current room
       messages
