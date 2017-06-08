@@ -56,12 +56,17 @@ Serving request type GET for url /arglebargle
 const url = require('url');
 
 var data = {results: [
-  {username: 'G', roomname: 'room1', text: 'first message', objectId: 1},
-  {username: 'J', roomname: 'room1', text: 'second message', objectId: 2},
-  {username: 'K', roomname: 'room1', text: 'third', objectId: 3},
+  {username: 'G', roomname: 'romm1', text: 'first message', objectId: 0},
+  {username: 'J', roomname: 'room1', text: 'second message', objectId: 1},
+  {username: 'K', roomname: 'room1', text: 'third message', objectId: 2},
 ]};
 
-
+var defaultCorsHeaders = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'access-control-allow-headers': 'content-type, accept',
+  'access-control-max-age': 10 // Seconds.
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -78,17 +83,51 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code
-  var clientURL = url.parse(request.url);
-  console.log('this is the url', clientURL.pathname); 
-  console.log('this is the method', request.method); 
-  
-  // console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
 
   // The outgoing status.
   var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
+
+  request.on('data', function(message) {
+    var username = 'username=';
+    var text = '&text=';
+    var room = '&roomname=';
+
+    var dataArray = message.toString().split(username).join('').split(text).join(' ').split(room).join().split(' ').join().split(',');
+
+    console.log(dataArray);
+    var obj = {
+      username: dataArray[0],
+      text: dataArray[1],
+      roomname: dataArray[2]
+    };
+    data.results.push(obj);
+
+     response.writeHead(statusCode, headers);
+  // response.end();
+
+  });
+
+  // var clientURL = url.parse(request.url);
+  // if (request.method = 'POST') {
+
+  //   'POST HAPPENED';
+  //   console.log(clientURL);
+  // }
+
+  
+
+  
+
+  // console.log('URL query', clientURL.query);
+  // console.log('this is the url', clientURL.pathname); 
+  // console.log('this is the method', request.method); 
+  
+  // console.log('Serving request type ' + request.method + ' for url ' + request.url);
+
 
   // Tell the client we are sending them plain text.
   //
@@ -109,6 +148,7 @@ var requestHandler = function(request, response) {
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
   response.end();
+  
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -121,12 +161,7 @@ var requestHandler = function(request, response) {
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
 
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
+
 
 
 exports.requestHandler = requestHandler;

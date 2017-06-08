@@ -4,7 +4,7 @@ var app = {
   //to all messages sent by the user
   server: 'http://127.0.0.1:3000/chatterbox/classes/messages',
   username: 'anonymous',
-  roomname: 'lobby',
+  roomname: 'room1',
   lastMessageId: 0,
   friends: {},
   messages: [],
@@ -43,7 +43,6 @@ var app = {
       type: 'POST',
       data: message,
       success: function (data) {
-        console.log('chatterbox: Successfully received messages ', data);
         // Clear messages input
         app.$message.val('');
 
@@ -68,10 +67,9 @@ var app = {
 
         // Store messages for caching later
         app.messages = data.results;
-
+        // console.log(data);
         // Get the last message
         var mostRecentMessage = data.results[data.results.length - 1];
-        console.log(mostRecentMessage);
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId) {
   
@@ -96,15 +94,15 @@ var app = {
   },
 
   renderMessages: function(messages, animate) {
-    console.log('ran')
-    
     // Clear existing messages`
     app.clearMessages();
     app.stopSpinner();
+console.log(messages);
     if (Array.isArray(messages)) {
       // Add all fetched messages that are in our current room
       messages
         .filter(function(message) {
+        
           return message.roomname === app.roomname ||
                  app.roomname === 'lobby' && !message.roomname;
         })
